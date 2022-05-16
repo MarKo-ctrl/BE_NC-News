@@ -16,10 +16,9 @@ describe('GET /api/topics', () => {
             .get('/api/topics')
             .expect(200)
             .then(({ body }) => {
-                const { topics } = body;
-                expect(topics).toBeInstanceOf(Array);
-                expect(topics).toHaveLength(3);
-                topics.forEach((topic) => {
+                expect(body).toBeInstanceOf(Object);
+                expect(body.topics).toHaveLength(3);
+                body.topics.forEach((topic) => {
                     expect(topic).toEqual(
                         expect.objectContaining({
                             slug: expect.any(String),
@@ -30,7 +29,7 @@ describe('GET /api/topics', () => {
             });
     });
 
-    it.only('404: responds with a not found message when the endpoint does not exist', () => {
+    it('404: responds with a not found message when the endpoint does not exist', () => {
         return request(app)
             .get('/api/dog')
             .expect(404)
