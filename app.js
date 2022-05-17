@@ -1,20 +1,23 @@
 const express = require('express');
+const { getTopics } = require('./controllers/topics.controllers');
+const { getArticleByID } = require('./controllers/articles.controllers');
 const {
-    getTopics
-} = require('./controllers/controllers')
+    handleInvalidRoutes
+} = require('./controllers/errors/errors.controllers');
 const {
-    handleCustomErrors
-} = require('./errors/index')
+    handleCustomServerErrors,
+    handleServerErrors,
+    handlePSQLError
+} = require('./models/errors/errors.models')
 
 const app = express();
 
-app.get('/api/topics', getTopics)
+app.get('/api/topics', getTopics);
+app.get('/api/articles/:article_id', getArticleByID);
 
-app.all('/*', handleCustomErrors);
-
-app.use((err, req, res, next) => {
-    console.log(err)
-    res.status(500).send('Server Error');
-});
+app.all('/*', handleInvalidRoutes);
+app.use(handleCustomServerErrors)
+app.use(handlePSQLError);
+app.use(handleServerErrors);
 
 module.exports = app;
