@@ -47,18 +47,19 @@ describe('GET: /api/article/:article_id', () => {
             .get(`/api/articles/${ARTICLE_ID}`)
             .expect(200)
             .then(({ body }) => {
+                console.log(body.article[0].created_at)
                 expect(body).toBeInstanceOf(Object);
                 expect(body.article).toHaveLength(1);
                 expect(body.article[0]).toEqual(
                     expect.objectContaining({
-                        article_id: expect.any(Number),
-                        title: expect.any(String),
-                        topic: expect.any(String),
-                        author: expect.any(String),
-                        body: expect.any(String),
-                        created_at: expect.any(String),
-                        votes: expect.any(Number)
-                    }))
+                        article_id: 5,
+                        title: "UNCOVERED: catspiracy to bring down democracy",
+                        topic: "cats",
+                        author: "rogersop",
+                        body: "Bastet walks amongst us, and the cats are taking arms!",
+                        created_at: "2020-08-03T13:14:00.000Z",
+                        votes: 0
+                    }));
             });
     });
 
