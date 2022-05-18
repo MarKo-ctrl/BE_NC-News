@@ -47,6 +47,7 @@ describe('GET: /api/article/:article_id', () => {
             .get(`/api/articles/${ARTICLE_ID}`)
             .expect(200)
             .then(({ body }) => {
+                console.log(body)
                 expect(body).toBeInstanceOf(Object);
                 expect(body.article).toHaveLength(1);
                 expect(body.article[0]).toEqual(
@@ -58,6 +59,31 @@ describe('GET: /api/article/:article_id', () => {
                         body: "Bastet walks amongst us, and the cats are taking arms!",
                         created_at: "2020-08-03T13:14:00.000Z",
                         votes: 0
+                    }));
+            });
+    });
+
+    it(`200: returns an article object with properties of 
+            article_id, title, topic, author, body, created_at, votes and 
+            the total amount of comments for the requested ID`, () => {
+        const ARTICLE_ID = 5;
+        return request(app)
+            .get(`/api/articles/${ARTICLE_ID}`)
+            .expect(200)
+            .then(({ body }) => {
+                console.log(body)
+                expect(body).toBeInstanceOf(Object);
+                expect(body.article).toHaveLength(1);
+                expect(body.article[0]).toEqual(
+                    expect.objectContaining({
+                        article_id: 5,
+                        title: "UNCOVERED: catspiracy to bring down democracy",
+                        topic: "cats",
+                        author: "rogersop",
+                        body: "Bastet walks amongst us, and the cats are taking arms!",
+                        created_at: "2020-08-03T13:14:00.000Z",
+                        votes: 0,
+                        comment_count: "2"
                     }));
             });
     });
