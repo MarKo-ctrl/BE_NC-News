@@ -47,7 +47,6 @@ describe('GET: /api/article/:article_id', () => {
             .get(`/api/articles/${ARTICLE_ID}`)
             .expect(200)
             .then(({ body }) => {
-                console.log(body.article[0].created_at)
                 expect(body).toBeInstanceOf(Object);
                 expect(body.article).toHaveLength(1);
                 expect(body.article[0]).toEqual(
@@ -82,6 +81,29 @@ describe('GET: /api/article/:article_id', () => {
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid ID');
+            });
+    });
+});
+
+describe('PATCH: /api/articles/:article_id', () => {
+    it('200: returns', () => {
+        const voteUpdates = { inc_votes: 2 };
+        return request(app)
+            .patch('/api/articles/3')
+            .send(voteUpdates)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toEqual(
+                    expect.objectContaining({
+                        article_id: 3,
+                        title: 'Eight pug gifs that remind me of mitch',
+                        topic: 'mitch',
+                        author: 'icellusedkars',
+                        body: 'some gifs',
+                        created_at: '2020-11-03T09:12:00.000Z',
+                        votes: 2
+                    })
+                );
             });
     });
 });

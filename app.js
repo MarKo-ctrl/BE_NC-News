@@ -1,8 +1,11 @@
 const express = require('express');
 const { getTopics } = require('./controllers/topics.controllers');
-const { getArticleByID } = require('./controllers/articles.controllers');
 const {
-    handleInvalidRoutes
+    getArticleByID,
+    patchArticleByID,
+} = require('./controllers/articles.controllers');
+const {
+    handleInvalidRoutes,
 } = require('./controllers/errors/errors.controllers');
 const {
     handleCustomServerErrors,
@@ -12,8 +15,11 @@ const {
 
 const app = express();
 
+app.use(express.json());
+
 app.get('/api/topics', getTopics);
 app.get('/api/articles/:article_id', getArticleByID);
+app.patch('/api/articles/:article_id', patchArticleByID);
 
 app.all('/*', handleInvalidRoutes);
 app.use(handleCustomServerErrors)
