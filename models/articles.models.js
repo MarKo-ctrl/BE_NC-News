@@ -21,7 +21,7 @@ exports.updateArticleByID = (article_id, inc_votes) => {
     console.log(typeof inc_votes)
     if (!inc_votes) {
         return Promise.reject({ status: 400, msg: 'Invalid request' });
-    } else if (typeof inc_votes === "string") {
+    } else if (typeof inc_votes !== "number") {
         return Promise.reject({ status: 400, msg: 'Invalid request - requested update is not a number' });
     } else {
         return db.query(`UPDATE articles
