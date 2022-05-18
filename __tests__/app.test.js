@@ -86,7 +86,7 @@ describe('GET: /api/article/:article_id', () => {
 });
 
 describe('PATCH: /api/articles/:article_id', () => {
-    it('200: returns', () => {
+    it ('200: returns an article object with the votes property updated by the passed value', () => {
         const voteUpdates = { inc_votes: 2 };
         return request(app)
             .patch('/api/articles/3')
@@ -102,8 +102,30 @@ describe('PATCH: /api/articles/:article_id', () => {
                         body: 'some gifs',
                         created_at: '2020-11-03T09:12:00.000Z',
                         votes: 2
-                    })
-                );
+                    }));
+            })
+    });
+
+    it(`400: returns an error message of 'Invalid request' when passed an empty object`, () => {
+        const voteUpdates = {};
+        return request(app)
+            .patch('/api/articles/3')
+            .send(voteUpdates)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid request');
+            });
+    });
+
+    it(`400: returns an error message of 'Invalid request - requested update is not a number'
+            when passed an empty object`, () => {
+        const voteUpdates = { inc_votes: 'sunnyDay' };
+        return request(app)
+            .patch('/api/articles/3')
+            .send(voteUpdates)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid request - requested update is not a number');
             });
     });
 });

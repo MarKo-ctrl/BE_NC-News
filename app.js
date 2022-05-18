@@ -6,6 +6,7 @@ const {
 } = require('./controllers/articles.controllers');
 const {
     handleInvalidRoutes,
+    handleCustomRequestErrors
 } = require('./controllers/errors/errors.controllers');
 const {
     handleCustomServerErrors,
@@ -22,7 +23,7 @@ app.get('/api/articles/:article_id', getArticleByID);
 app.patch('/api/articles/:article_id', patchArticleByID);
 
 app.all('/*', handleInvalidRoutes);
-app.use(handleCustomServerErrors)
+app.use(handleCustomServerErrors);
 app.use(handlePSQLError);
 app.use(handleServerErrors);
 
