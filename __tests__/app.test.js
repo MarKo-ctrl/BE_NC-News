@@ -128,4 +128,13 @@ describe('PATCH: /api/articles/:article_id', () => {
                 expect(body.msg).toBe('Invalid request - requested update is not a number');
             });
     });
+
+    it('404: responds with a not found message when the route passed does not exist', () => {
+        return request(app)
+            .get('/api/article/cloud/rain')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });
+    });
 });
