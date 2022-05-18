@@ -86,7 +86,7 @@ describe('GET: /api/article/:article_id', () => {
 });
 
 describe('PATCH: /api/articles/:article_id', () => {
-    it ('200: returns an article object with the votes property updated by the passed value', () => {
+    it('200: returns an article object with the votes property updated by the passed value', () => {
         const voteUpdates = { inc_votes: 2 };
         return request(app)
             .patch('/api/articles/3')
@@ -132,6 +132,34 @@ describe('PATCH: /api/articles/:article_id', () => {
     it('404: responds with a not found message when the route passed does not exist', () => {
         return request(app)
             .get('/api/article/cloud/rain')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });
+    });
+});
+
+describe('GET /api/users', () => {
+    it('200: returns an array of users objects', () => {
+        return request(app)
+            .get('/api/users')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toBeInstanceOf(Array);
+                expect(body).toHaveLength(4);
+                body.forEach((user) => {
+                    expect(user).toEqual(
+                        expect.objectContaining({
+                            username: expect.any(String)
+                        })
+                    );
+                });
+            });
+    });
+
+    it('404: responds with a not found message when the route passed does not exist', () => {
+        return request(app)
+            .get('/api/myWonderfulUsers')
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('Route not found');
