@@ -48,3 +48,29 @@ exports.updateArticleByID = (article_id, inc_votes) => {
             });
     };
 };
+
+exports.fetchArticles = () => {
+    return db.query(`SELECT articles.article_id,
+    articles.title,
+    articles.topic,
+    articles.author,
+    articles.body,
+    articles.created_at,
+    articles.votes,                
+    count(comments.body) AS comment_count
+    FROM articles
+    JOIN comments
+    ON articles.article_id = comments.article_id
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC`)
+        .then((articles) => {
+            if (articles.rows.length === 0) {
+                return Promise.reject({
+                    status: 404,
+                    msg: 'No article found'
+                });
+            };
+            return articles.rows
+
+        })
+};

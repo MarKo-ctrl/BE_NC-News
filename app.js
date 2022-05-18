@@ -3,6 +3,7 @@ const { getTopics } = require('./controllers/topics.controllers');
 const {
     getArticleByID,
     patchArticleByID,
+    getArticles,
 } = require('./controllers/articles.controllers');
 const { getUsers } = require('./controllers/users.controllers');
 const { handleInvalidRoutes } = require('./controllers/errors/errors.controllers');
@@ -20,7 +21,7 @@ app.get('/api/topics', getTopics);
 app.get('/api/articles/:article_id', getArticleByID);
 app.get('/api/users', getUsers)
 app.patch('/api/articles/:article_id', patchArticleByID);
-
+app.get('/api/articles', getArticles);
 
 app.all('/*', handleInvalidRoutes);
 app.use(handleCustomServerErrors);
