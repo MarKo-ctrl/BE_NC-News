@@ -57,7 +57,7 @@ exports.fetchArticles = () => {
     articles.body,
     articles.created_at,
     articles.votes,                
-    count(comments.body) AS comment_count
+    count(comments.body)::INTEGER AS comment_count
     FROM articles
     JOIN comments
     ON articles.article_id = comments.article_id
