@@ -250,20 +250,20 @@ describe('GET /api/articles/:article_id/comments', () => {
             });
     });
 
-    it('404: responds with a not found message when there are no comments for the given article', () => {
+    it('200: responds with an empty array when there are no comments for the given article', () => {
         return request(app)
             .get(`/api/articles/8/comments`)
-            .expect(404)
+            .expect(200)
             .then(({ body }) => {
-                expect(body.msg).toBe('No comments or article found');
+                expect(body.rows).toEqual([]);
             });
     });
-    it(`404: returns an error message of 'Article not found' when passed an article ID that does not exist`, () => {
+    it(`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
         return request(app)
             .get('/api/articles/16/comments')
             .expect(404)
             .then(({ body }) => {
-                expect(body.msg).toBe('No comments or article found');
+                expect(body.msg).toBe('No article found');
             });
     });
 
