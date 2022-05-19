@@ -5,6 +5,7 @@ const {
     patchArticleByID,
     getArticles,
     getArticleComments,
+    postComment,
 } = require('./controllers/articles.controllers');
 const { getUsers } = require('./controllers/users.controllers');
 const { handleInvalidRoutes } = require('./controllers/errors/errors.controllers');
@@ -24,6 +25,7 @@ app.get('/api/users', getUsers)
 app.patch('/api/articles/:article_id', patchArticleByID);
 app.get('/api/articles', getArticles);
 app.get('/api/articles/:article_id/comments', getArticleComments);
+app.post('/api/articles/:article_id/comments', postComment);
 
 app.all('/*', handleInvalidRoutes);
 app.use(handleCustomServerErrors);

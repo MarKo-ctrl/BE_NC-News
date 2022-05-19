@@ -277,3 +277,35 @@ describe('GET /api/articles/:article_id/comments', () => {
             });
     });
 });
+
+describe('POST: /api/articles/:article_id/comments', () => {
+    it('201: returns an article object with the votes property updated by the passed value', () => {
+        const newComment = { username: 'lurker', body: 'This is awesome!' };
+        const article_id = 4;
+        return request(app)
+            .post(`/api/articles/${article_id}/comments`)
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.rows[0]).toEqual(
+                    expect.objectContaining({
+                        article_id: 4,
+                        author: "lurker",
+                        body: "This is awesome!",
+                        comment_id: 19,
+                        created_at: expect.any(String),
+                        votes: 0
+                    }));
+            })
+    });
+
+    it('400: returns with an error message when passed an invalid article ID', () => {
+        const ARTICLE_ID = 'VII';
+        return request(app)
+            .get(`/api/articles/${ARTICLE_ID}/comments`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid ID');
+            });
+    });
+});

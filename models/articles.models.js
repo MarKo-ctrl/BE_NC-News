@@ -87,9 +87,21 @@ exports.fetchArticleComments = (articleID) => {
                 votes, created_at, author, body
                 FROM comments
                 WHERE article_id = $1`, [articleID])
-                .then((comments) => {
-                    return comments;
-                });
+                    .then((comments) => {
+                        return comments;
+                    });
             };
         });
-    };
+};
+
+exports.insertComment = (newComment, articleID) => {
+    // console.log(newComment)
+    const { username, body } = newComment
+    return db.query(`INSERT INTO comments (author, body,article_id) VALUES 
+                        ((SELECT username FROM users WHERE username = $1), $2, (SELECT article_id FROM articles WHERE article_id = $3))
+                        RETURNING *;`,
+        [username, body, articleID])
+        .then((comment) => {
+            return comment;
+        });
+};
