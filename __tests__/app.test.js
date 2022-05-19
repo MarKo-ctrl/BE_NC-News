@@ -227,3 +227,53 @@ describe('GET /api/articles', () => {
     });
 
 });
+
+describe('GET /api/articles/:article_id/comments', () => {
+    it(`200: responds with an array of comments for the given article_id. Each comment should have
+    the following properties: comment_id, votes, created_at, author, body`, () => {
+        return request(app)
+            .get(`/api/articles/5/comments`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.rows).toBeInstanceOf(Array);
+                expect(body.rows).toHaveLength(2);
+                body.rows.forEach((comment) => {
+                    expect(comment).toEqual(
+                        expect.objectContaining({
+                            comment_id: expect.any(Number),
+                            votes: expect.any(Number),
+                            author: expect.any(String),
+                            body: expect.any(String),
+                            created_at: expect.any(String),
+                        }));
+                });
+            });
+    });
+
+    it('200: responds with an empty array when there are no comments for the given article', () => {
+        return request(app)
+            .get(`/api/articles/8/comments`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.rows).toEqual([]);
+            });
+    });
+    it(`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
+        return request(app)
+            .get('/api/articles/16/comments')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('No article found');
+            });
+    });
+
+    it('400: returns with an error message when passed an invalid article ID', () => {
+        const ARTICLE_ID = 'VII';
+        return request(app)
+            .get(`/api/articles/${ARTICLE_ID}/comments`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid ID');
+            });
+    });
+});
