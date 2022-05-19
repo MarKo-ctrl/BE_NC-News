@@ -276,13 +276,4 @@ describe('GET /api/articles/:article_id/comments', () => {
                 expect(body.msg).toBe('Invalid ID');
             });
     });
-
-    it('404: responds with a not found message when the route passed does not exist', () => {
-        return request(app)
-            .get('/api/articles/1/theBestComments')
-            .expect(404)
-            .then(({ body }) => {
-                expect(body.msg).toBe('Route not found');
-            });
-    });
 });
