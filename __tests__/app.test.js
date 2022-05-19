@@ -47,7 +47,6 @@ describe('GET: /api/article/:article_id', () => {
             .get(`/api/articles/${ARTICLE_ID}`)
             .expect(200)
             .then(({ body }) => {
-                console.log(body)
                 expect(body).toBeInstanceOf(Object);
                 expect(body.article).toHaveLength(1);
                 expect(body.article[0]).toEqual(
@@ -71,7 +70,6 @@ describe('GET: /api/article/:article_id', () => {
             .get(`/api/articles/${ARTICLE_ID}`)
             .expect(200)
             .then(({ body }) => {
-                console.log(body)
                 expect(body).toBeInstanceOf(Object);
                 expect(body.article).toHaveLength(1);
                 expect(body.article[0]).toEqual(
@@ -191,4 +189,41 @@ describe('GET /api/users', () => {
                 expect(body.msg).toBe('Route not found');
             });
     });
+});
+
+describe('GET /api/articles', () => {
+    it(`200: returns an array of article objects. Each object should have the following properties:
+    article_id, title, topic, author, body, created_at, votes and comment_count`, () => {
+        return request(app)
+            .get(`/api/articles/`)
+            .expect(200)
+            .then(({ body }) => {
+                // console.log(body)
+                expect(body).toBeInstanceOf(Array);
+                expect(body).toHaveLength(5);
+                body.forEach((article) => {
+                    expect(article).toEqual(
+                        expect.objectContaining({
+                            article_id: expect.any(Number),
+                            title: expect.any(String),
+                            topic: expect.any(String),
+                            author: expect.any(String),
+                            body: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            comment_count: expect.any(Number)
+                        }));
+                });
+            });
+    });
+
+    it('404: responds with a not found message when the route passed does not exist', () => {
+        return request(app)
+            .get('/api/oneMinReadArticles')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });
+    });
+
 });
