@@ -288,7 +288,7 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             .send(newComment)
             .expect(201)
             .then(({ body }) => {
-                expect(body.rows[0]).toEqual(
+                expect(body).toEqual(
                     expect.objectContaining({
                         article_id: 4,
                         author: "lurker",
@@ -300,13 +300,13 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             })
     });
 
-    it('200: returns a message <User not found> when the given username does not exist', () => {
+    it ('404: returns a message <User not found> when the given username does not exist', () => {
         const newComment = { username: 'superman', body: 'This is awesome!' };
         const article_id = 4;
         return request(app)
             .post(`/api/articles/${article_id}/comments`)
             .send(newComment)
-            .expect(201)
+            .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('User not found');
             })
@@ -324,7 +324,7 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             });
     });
 
-    it(`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
+    it (`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
         const ARTICLE_ID = 1989;
         const newComment = { username: 'lurker', body: 'This is awesome!' };
         return request(app)

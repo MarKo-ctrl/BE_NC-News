@@ -3,7 +3,6 @@ const {
     updateArticleByID,
     fetchArticles,
     fetchArticleComments,
-    insertComment
 } = require('../models/articles.models');
 
 exports.getArticleByID = (req, res, next) => {
@@ -39,14 +38,4 @@ exports.getArticleComments = (req, res, next) => {
             res.status(200).send(comments);
         })
         .catch(next);
-}
-
-exports.postComment = (req, res, next) => {
-    const { article_id } = req.params
-    const body = req.body
-    insertComment(body, article_id)
-        .then((comment) => {
-            res.status(201).send(comment)
-        })
-        .catch(next)
-}
+};

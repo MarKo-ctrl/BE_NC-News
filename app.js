@@ -5,8 +5,8 @@ const {
     patchArticleByID,
     getArticles,
     getArticleComments,
-    postComment,
 } = require('./controllers/articles.controllers');
+const { postComment } = require('./controllers/comments.controllers')
 const { getUsers } = require('./controllers/users.controllers');
 const { handleInvalidRoutes } = require('./controllers/errors/errors.controllers');
 const {
