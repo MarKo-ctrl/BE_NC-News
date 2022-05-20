@@ -87,9 +87,9 @@ exports.fetchArticleComments = (articleID) => {
                 votes, created_at, author, body
                 FROM comments
                 WHERE article_id = $1`, [articleID])
-                .then((comments) => {
-                    return comments;
-                });
+                    .then((comments) => {
+                        return comments;
+                    });
             };
         });
-    };
+};
