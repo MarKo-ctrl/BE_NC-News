@@ -95,13 +95,28 @@ exports.fetchArticleComments = (articleID) => {
 };
 
 exports.insertComment = (newComment, articleID) => {
-    // console.log(newComment)
     const { username, body } = newComment
-    return db.query(`INSERT INTO comments (author, body,article_id) VALUES 
-                        ((SELECT username FROM users WHERE username = $1), $2, (SELECT article_id FROM articles WHERE article_id = $3))
-                        RETURNING *;`,
-        [username, body, articleID])
-        .then((comment) => {
-            return comment;
+    return db.query(`SELECT username FROM users WHERE username = $1`, [username])
+        .then((user) => {
+            if (user.rows.length === 0) {
+                return { msg: "User not found" }
+            } else {
+                return db.query('SELECT article_id FROM articles WHERE article_id = $1', [articleID])
+                    .then((article) => {
+                        if (article.rows.length === 0) {
+                            return Promise.reject({
+                                status: 404,
+                                msg: 'Article not found'
+                            })
+                        } else {
+                            return db.query(`INSERT INTO comments (author, body, article_id)
+                                            VALUES ($1, $2, $3)
+                                            RETURNING *;`, [username, body, articleID])
+                                .then((comment) => {
+                                    return comment;
+                                });
+                        };
+                    });
+            };
         });
 };

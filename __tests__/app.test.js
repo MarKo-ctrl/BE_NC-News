@@ -258,6 +258,7 @@ describe('GET /api/articles/:article_id/comments', () => {
                 expect(body.rows).toEqual([]);
             });
     });
+
     it(`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
         return request(app)
             .get('/api/articles/16/comments')
@@ -278,8 +279,8 @@ describe('GET /api/articles/:article_id/comments', () => {
     });
 });
 
-describe('POST: /api/articles/:article_id/comments', () => {
-    it('201: returns an article object with the votes property updated by the passed value', () => {
+describe ('POST: /api/articles/:article_id/comments', () => {
+    it('201: returns a new comment object', () => {
         const newComment = { username: 'lurker', body: 'This is awesome!' };
         const article_id = 4;
         return request(app)
@@ -299,13 +300,39 @@ describe('POST: /api/articles/:article_id/comments', () => {
             })
     });
 
-    it('400: returns with an error message when passed an invalid article ID', () => {
-        const ARTICLE_ID = 'VII';
+    it('200: returns a message <User not found> when the given username does not exist', () => {
+        const newComment = { username: 'superman', body: 'This is awesome!' };
+        const article_id = 4;
         return request(app)
-            .get(`/api/articles/${ARTICLE_ID}/comments`)
+            .post(`/api/articles/${article_id}/comments`)
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.msg).toBe('User not found');
+            })
+    });
+
+    it ('400: returns with an error message when passed an invalid article ID', () => {
+        const ARTICLE_ID = 'VII';
+        const newComment = { username: 'lurker', body: 'This is awesome!' };
+        return request(app)
+            .post(`/api/articles/${ARTICLE_ID}/comments`)
+            .send(newComment)
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid ID');
+            });
+    });
+
+    it(`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
+        const ARTICLE_ID = 1989;
+        const newComment = { username: 'lurker', body: 'This is awesome!' };
+        return request(app)
+            .post(`/api/articles/${ARTICLE_ID}/comments`)
+            .send(newComment)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Article not found');
             });
     });
 });
