@@ -11,6 +11,7 @@ exports.handleServerErrors = (err, req, res, next) => {
 };
 
 exports.handlePSQLError = (err, req, res, next) => {
+    // console.log(err)
     if (err.code === '22P02') {
         res.status(400).send({ msg: 'Invalid ID' });
     } else if (err.code === '23503' && /author/g.test(err.detail)) {

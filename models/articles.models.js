@@ -51,27 +51,32 @@ exports.updateArticleByID = (article_id, inc_votes) => {
     };
 };
 
-exports.fetchArticles = (sortBy, order) => {
-    // console.log(sortBy, order)
-    const sortColsValid = ['article_id', 'title', 'topic', 'author', 'comment_count', 'created_at', 'votes'];
+exports.fetchArticles = (sortBy, order, topic) => {
+    const validCols = ['article_id', 'title', 'author', 'comment_count', 'created_at', 'votes'];
+    const validTopics = ['mitch', 'cats', 'paper']
     let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes,                
 count(comments.body)::INTEGER AS comment_count
 FROM articles
 JOIN comments
-ON articles.article_id = comments.article_id
-GROUP BY articles.article_id`;
+ON articles.article_id = comments.article_id`;
 
-    if (sortBy && sortColsValid.includes(sortBy)) {
+    if (topic && validTopics.includes(topic)) {
+        queryString += `\nWHERE topic='${topic}'`;
+    };
+
+    queryString += `\nGROUP BY articles.article_id`;
+
+    if (sortBy && validCols.includes(sortBy)) {
         queryString += `\nORDER BY ${sortBy}`;
     } else {
         queryString += `\nORDER BY created_at`;
-    }
+    };
 
     if (order && ['asc', 'desc'].includes(order)) {
         queryString += ` ${order.toUpperCase()}`;
     } else {
         queryString += ` DESC`;
-    }
+    };
 
     return db.query(queryString)
         .then((articles) => {

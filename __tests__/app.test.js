@@ -337,7 +337,7 @@ describe('POST: /api/articles/:article_id/comments', () => {
     });
 });
 
-describe.only('GET: /api/articles (queries)', () => {
+describe('GET: /api/articles (queries)', () => {
     it('200: responds with an array of article objects sorted by date (descending) as default ', () => {
         return request(app)
             .get(`/api/articles`)
@@ -346,17 +346,28 @@ describe.only('GET: /api/articles (queries)', () => {
                 const dateBody = body.map(article => convertTimestampToDate(article));
                 // console.log(dateBody)
                 for (let i = 0; i < (dateBody.length - 2); i++) {
-                    expect(dateBody[i+1].created_at).toBeBefore(dateBody[i].created_at)
+                    expect(dateBody[i + 1].created_at).toBeBefore(dateBody[i].created_at)
                 }
             });
     });
 
     it('200: responds with an array of article objects with user-defined sort & order values', () => {
         return request(app)
-        .get(`/api/articles/?sort_by=title&order=asc`)
-        .expect(200)
-        .then(({ body }) => {
-            expect(body).toBeSortedBy('title', {ascending: true})
-        })
+            .get(`/api/articles/?sort_by=title&order=asc`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toBeSortedBy('title', { ascending: true })
+            });
+    });
+
+    it('200: responds with an array of article objects filtered by the given topic', () => {
+        return request(app)
+            .get(`/api/articles/?topic=mitch`)
+            .expect(200)
+            .then(({ body }) => {
+                body.forEach((article => {
+                    expect(article.topic).toBe('mitch');
+                }));
+            });
     });
 });
