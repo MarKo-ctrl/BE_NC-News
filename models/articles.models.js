@@ -1,4 +1,6 @@
 const db = require('../db/connection');
+const { forEach } = require('../db/data/test-data/articles');
+const { convertTimestampToDate } = require('../db/helpers/utils');
 
 exports.fetchArticleById = (article_id) => {
     return db.query(`SELECT articles.article_id,
@@ -49,20 +51,29 @@ exports.updateArticleByID = (article_id, inc_votes) => {
     };
 };
 
-exports.fetchArticles = () => {
-    return db.query(`SELECT articles.article_id,
-    articles.title,
-    articles.topic,
-    articles.author,
-    articles.body,
-    articles.created_at,
-    articles.votes,                
-    count(comments.body)::INTEGER AS comment_count
-    FROM articles
-    JOIN comments
-    ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC`)
+exports.fetchArticles = (sortBy, order) => {
+    // console.log(sortBy, order)
+    const sortColsValid = ['article_id', 'title', 'topic', 'author', 'comment_count', 'created_at', 'votes'];
+    let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes,                
+count(comments.body)::INTEGER AS comment_count
+FROM articles
+JOIN comments
+ON articles.article_id = comments.article_id
+GROUP BY articles.article_id`;
+
+    if (sortBy && sortColsValid.includes(sortBy)) {
+        queryString += `\nORDER BY ${sortBy}`;
+    } else {
+        queryString += `\nORDER BY created_at`;
+    }
+
+    if (order && ['asc', 'desc'].includes(order)) {
+        queryString += ` ${order.toUpperCase()}`;
+    } else {
+        queryString += ` DESC`;
+    }
+
+    return db.query(queryString)
         .then((articles) => {
             if (articles.rows.length === 0) {
                 return Promise.reject({
@@ -70,7 +81,7 @@ exports.fetchArticles = () => {
                     msg: 'No article found'
                 });
             };
-            return articles.rows
+            return articles.rows;
         });
 };
 
