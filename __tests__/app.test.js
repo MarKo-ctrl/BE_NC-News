@@ -300,7 +300,7 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             })
     });
 
-    it ('404: returns a message <User not found> when the given username does not exist', () => {
+    it('404: returns a message <User not found> when the given username does not exist', () => {
         const newComment = { username: 'superman', body: 'This is awesome!' };
         const article_id = 4;
         return request(app)
@@ -312,7 +312,7 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             })
     });
 
-    it ('400: returns with an error message when passed an invalid article ID', () => {
+    it('400: returns with an error message when passed an invalid article ID', () => {
         const ARTICLE_ID = 'VII';
         const newComment = { username: 'lurker', body: 'This is awesome!' };
         return request(app)
@@ -324,7 +324,7 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             });
     });
 
-    it (`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
+    it(`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
         const ARTICLE_ID = 1989;
         const newComment = { username: 'lurker', body: 'This is awesome!' };
         return request(app)
@@ -336,3 +336,45 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             });
     });
 });
+
+describe ('DELETE: /api/comments/:comment_id', () => {
+    it('204: responds with no content', () => {
+        const comment_id = 2;
+        return request(app)
+            .delete(`/api/comments/${comment_id}`)
+            .expect(204)
+            .then(({ body }) => {
+                expect(body).toEqual({})
+            })
+    });
+
+    it ('404: responds with an error message when passed a comment_id that does not exist', () => {
+        const comment_id = 333;
+        return request(app)
+            .delete(`/api/comments/${comment_id}`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Comment does not exist')
+            })
+    });
+
+    it('400: responds with an error message when passed an invalid comment ID', () => {
+        const comment_id = 'xxx';
+        return request(app)
+            .delete(`/api/comments/${comment_id}`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid ID');
+            });
+
+        });
+
+        it('400: responds with an error message when no comment ID is given', () => {
+        return request(app)
+            .delete(`/api/comments`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });    
+        });
+    });
