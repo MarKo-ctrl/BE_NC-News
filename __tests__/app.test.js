@@ -337,7 +337,7 @@ describe('POST: /api/articles/:article_id/comments', () => {
     });
 });
 
-describe('GET: /api/articles (queries)', () => {
+describe ('GET: /api/articles (queries)', () => {
     it('200: responds with an array of article objects sorted by date (descending) as default ', () => {
         return request(app)
             .get(`/api/articles`)
@@ -369,5 +369,41 @@ describe('GET: /api/articles (queries)', () => {
                     expect(article.topic).toBe('mitch');
                 }));
             });
+    });
+
+    it('400: responds with an error message when the given sort_by column does not exist', () => {
+        return request(app)
+            .get(`/api/articles/?sort_by=viewsCount`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Sort by column not found")
+            })
+    });
+
+    it('400: responds with an error message when given order value different form desc or asc', () => {
+        return request(app)
+            .get(`/api/articles/?order=minToMax`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Order value not accepted")
+            })
+    });
+
+    it ('400: responds with error when request is filtered by a topic that does not exist', () => {
+        return request(app)
+            .get(`/api/articles/?topic=rainbow`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Requested topic does not exist")
+            })
+    });
+
+    it ('404: responds with error when request is filtered by a topic that does not have any articles', () => {
+        return request(app)
+            .get(`/api/articles/?topic=paper`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("No article found")
+            })
     });
 });

@@ -1,6 +1,4 @@
 const db = require('../db/connection');
-const { forEach } = require('../db/data/test-data/articles');
-const { convertTimestampToDate } = require('../db/helpers/utils');
 
 exports.fetchArticleById = (article_id) => {
     return db.query(`SELECT articles.article_id,
@@ -62,21 +60,27 @@ ON articles.article_id = comments.article_id`;
 
     if (topic && validTopics.includes(topic)) {
         queryString += `\nWHERE topic='${topic}'`;
+    } else if (topic && !validTopics.includes(topic)) {
+        return Promise.reject({ status: 400, msg: "Requested topic does not exist" })
     };
 
     queryString += `\nGROUP BY articles.article_id`;
 
-    if (sortBy && validCols.includes(sortBy)) {
+    if (!sortBy) {
+        queryString += `\nORDER BY created_at`;
+    } else if (sortBy && validCols.includes(sortBy)) {
         queryString += `\nORDER BY ${sortBy}`;
     } else {
-        queryString += `\nORDER BY created_at`;
-    };
+        return Promise.reject({ status: 400, msg: "Sort by column not found" })
+    }
 
     if (order && ['asc', 'desc'].includes(order)) {
         queryString += ` ${order.toUpperCase()}`;
+    } else if (order && !['asc', 'desc'].includes(order)) {
+        return Promise.reject({ status: 400, msg: "Order value not accepted" })
     } else {
         queryString += ` DESC`;
-    };
+    }
 
     return db.query(queryString)
         .then((articles) => {
