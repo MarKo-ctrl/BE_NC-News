@@ -3,6 +3,7 @@ const testData = require('../db/data/test-data');
 const connection = require('../db/connection');
 const request = require('supertest');
 const app = require("../app")
+const { convertTimestampToDate } = require('../db/helpers/utils')
 
 beforeEach(() => seed(testData));
 
@@ -198,7 +199,6 @@ describe('GET /api/articles', () => {
             .get(`/api/articles/`)
             .expect(200)
             .then(({ body }) => {
-                // console.log(body)
                 expect(body).toBeInstanceOf(Array);
                 expect(body).toHaveLength(5);
                 body.forEach((article) => {
@@ -279,7 +279,7 @@ describe('GET /api/articles/:article_id/comments', () => {
     });
 });
 
-describe ('POST: /api/articles/:article_id/comments', () => {
+describe('POST: /api/articles/:article_id/comments', () => {
     it('201: returns a new comment object', () => {
         const newComment = { username: 'lurker', body: 'This is awesome!' };
         const article_id = 4;
@@ -334,6 +334,77 @@ describe ('POST: /api/articles/:article_id/comments', () => {
             .then(({ body }) => {
                 expect(body.msg).toBe('Article not found');
             });
+    });
+});
+
+describe ('GET: /api/articles (queries)', () => {
+    it('200: responds with an array of article objects sorted by date (descending) as default ', () => {
+        return request(app)
+            .get(`/api/articles`)
+            .expect(200)
+            .then(({ body }) => {
+                const dateBody = body.map(article => convertTimestampToDate(article));
+                // console.log(dateBody)
+                for (let i = 0; i < (dateBody.length - 2); i++) {
+                    expect(dateBody[i + 1].created_at).toBeBefore(dateBody[i].created_at)
+                }
+            });
+    });
+
+    it('200: responds with an array of article objects with user-defined sort & order values', () => {
+        return request(app)
+            .get(`/api/articles/?sort_by=title&order=asc`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toBeSortedBy('title', { ascending: true })
+            });
+    });
+
+    it('200: responds with an array of article objects filtered by the given topic', () => {
+        return request(app)
+            .get(`/api/articles/?topic=mitch`)
+            .expect(200)
+            .then(({ body }) => {
+                body.forEach((article => {
+                    expect(article.topic).toBe('mitch');
+                }));
+            });
+    });
+
+    it('400: responds with an error message when the given sort_by column does not exist', () => {
+        return request(app)
+            .get(`/api/articles/?sort_by=viewsCount`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Sort by column not found")
+            })
+    });
+
+    it('400: responds with an error message when given order value different form desc or asc', () => {
+        return request(app)
+            .get(`/api/articles/?order=minToMax`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Order value not accepted")
+            })
+    });
+
+    it ('400: responds with error when request is filtered by a topic that does not exist', () => {
+        return request(app)
+            .get(`/api/articles/?topic=rainbow`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Requested topic does not exist")
+            })
+    });
+
+    it ('404: responds with error when request is filtered by a topic that does not have any articles', () => {
+        return request(app)
+            .get(`/api/articles/?topic=paper`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("No article found")
+            })
     });
 });
 
