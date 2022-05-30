@@ -407,3 +407,45 @@ describe ('GET: /api/articles (queries)', () => {
             })
     });
 });
+
+describe ('DELETE: /api/comments/:comment_id', () => {
+    it('204: responds with no content', () => {
+        const comment_id = 2;
+        return request(app)
+            .delete(`/api/comments/${comment_id}`)
+            .expect(204)
+            .then(({ body }) => {
+                expect(body).toEqual({})
+            })
+    });
+
+    it ('404: responds with an error message when passed a comment_id that does not exist', () => {
+        const comment_id = 333;
+        return request(app)
+            .delete(`/api/comments/${comment_id}`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Comment does not exist')
+            })
+    });
+
+    it('400: responds with an error message when passed an invalid comment ID', () => {
+        const comment_id = 'xxx';
+        return request(app)
+            .delete(`/api/comments/${comment_id}`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid ID');
+            });
+
+        });
+
+        it('400: responds with an error message when no comment ID is given', () => {
+        return request(app)
+            .delete(`/api/comments`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });    
+        });
+    });
