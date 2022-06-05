@@ -13,12 +13,14 @@ const {
     handleCustomServerErrors,
     handleServerErrors,
     handlePSQLError
-} = require('./models/errors/errors.models')
+} = require('./models/errors/errors.models');
+const { getDesc } = require('./controllers/description.controllers');
 
 const app = express();
 
 app.use(express.json());
 
+app.get('/api', getDesc)
 app.get('/api/topics', getTopics);
 app.get('/api/articles/:article_id', getArticleByID);
 app.get('/api/users', getUsers)
