@@ -344,7 +344,6 @@ describe ('GET: /api/articles (queries)', () => {
             .expect(200)
             .then(({ body }) => {
                 const dateBody = body.map(article => convertTimestampToDate(article));
-                // console.log(dateBody)
                 for (let i = 0; i < (dateBody.length - 2); i++) {
                     expect(dateBody[i + 1].created_at).toBeBefore(dateBody[i].created_at)
                 }
