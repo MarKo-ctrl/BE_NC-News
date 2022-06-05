@@ -2,7 +2,7 @@ const seed = require('../db/seeds/seed');
 const testData = require('../db/data/test-data');
 const connection = require('../db/connection');
 const request = require('supertest');
-const app = require("../app")
+const app = require("../app");
 const { convertTimestampToDate } = require('../db/helpers/utils')
 
 beforeEach(() => seed(testData));
@@ -280,7 +280,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 });
 
 describe('POST: /api/articles/:article_id/comments', () => {
-    it('201: returns a new comment object', () => {
+    it.only('201: returns a new comment object', () => {
         const newComment = { username: 'lurker', body: 'This is awesome!' };
         const article_id = 4;
         return request(app)
@@ -288,6 +288,7 @@ describe('POST: /api/articles/:article_id/comments', () => {
             .send(newComment)
             .expect(201)
             .then(({ body }) => {
+                console.log(body)
                 expect(body).toEqual(
                     expect.objectContaining({
                         article_id: 4,
