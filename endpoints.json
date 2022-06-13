@@ -22,7 +22,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "Serves an array of all topics",
+    "description": "Serves an array of all articles",
     "queries": [
       "author",
       "topic",
