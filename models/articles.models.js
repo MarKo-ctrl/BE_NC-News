@@ -51,7 +51,7 @@ exports.updateArticleByID = (article_id, inc_votes) => {
 
 exports.fetchArticles = (sortBy, order, topic) => {
     const validCols = ['article_id', 'title', 'author', 'comment_count', 'created_at', 'votes'];
-    const validTopics = ['mitch', 'cats', 'paper']
+    const validTopics = ['mitch', 'cats', 'paper', 'coding', 'football', 'cooking']
     let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes,                
 count(comments.body)::INTEGER AS comment_count
 FROM articles
