@@ -1,36 +1,19 @@
 const express = require('express');
 const cors = require('cors');
-const { getTopics } = require('./controllers/topics.controllers');
-const {
-    getArticleByID,
-    patchArticleByID,
-    getArticles,
-    getArticleComments,
-} = require('./controllers/articles.controllers');
-const { postComment, deleteComment } = require('./controllers/comments.controllers')
-const { getUsers } = require('./controllers/users.controllers');
 const { handleInvalidRoutes } = require('./controllers/errors/errors.controllers');
 const {
     handleCustomServerErrors,
     handleServerErrors,
     handlePSQLError
 } = require('./models/errors/errors.models');
-const { getDesc } = require('./controllers/description.controllers');
+const apiRouter = require('./routes/api-router')
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/api', getDesc)
-app.get('/api/topics', getTopics);
-app.get('/api/articles/:article_id', getArticleByID);
-app.get('/api/users', getUsers)
-app.patch('/api/articles/:article_id', patchArticleByID);
-app.get('/api/articles', getArticles);
-app.get('/api/articles/:article_id/comments', getArticleComments);
-app.post('/api/articles/:article_id/comments', postComment);
-app.delete('/api/comments/:comment_id', deleteComment)
+app.use('/api', apiRouter)
 
 app.all('/*', handleInvalidRoutes);
 app.use(handleCustomServerErrors);
