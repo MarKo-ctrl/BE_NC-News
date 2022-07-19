@@ -206,6 +206,26 @@ describe('GET /api/users', () => {
     });
 });
 
+describe.only('GET /api/users/:username', () => {
+    it('200: responds with a user object containing the following properties: username, avatar_url, name', () => {
+        const username = 'butter_bridge';
+        return request(app)
+            .get(`/api/users/${username}`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toBeInstanceOf(Array);
+                expect(body).toHaveLength(1);
+                expect(body[0]).toEqual(
+                        expect.objectContaining({
+                            username: expect.any(String),
+                            name: expect.any(String),
+                            avatar_url:  expect.any(String)
+                        })
+                    );
+            });
+    })
+})
+
 describe('GET /api/articles/:article_id/comments', () => {
     it(`200: responds with an array of comments for the given article_id. Each comment should have
     the following properties: comment_id, votes, created_at, author, body`, () => {
