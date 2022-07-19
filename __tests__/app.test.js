@@ -206,7 +206,7 @@ describe('GET /api/users', () => {
     });
 });
 
-describe.only('GET /api/users/:username', () => {
+describe('GET /api/users/:username', () => {
     it('200: responds with a user object containing the following properties: username, avatar_url, name', () => {
         const username = 'butter_bridge';
         return request(app)
