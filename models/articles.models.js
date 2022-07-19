@@ -93,23 +93,3 @@ ON articles.article_id = comments.article_id`;
             return articles.rows;
         });
 };
-
-exports.fetchArticleComments = (articleID) => {
-    return db.query(`SELECT title FROM articles WHERE article_id = $1`, [articleID])
-        .then((title) => {
-            if (title.rows.length === 0) {
-                return Promise.reject({
-                    status: 404,
-                    msg: 'No article found'
-                })
-            } else {
-                return db.query(`SELECT comment_id, article_id,
-                votes, created_at, author, body
-                FROM comments
-                WHERE article_id = $1`, [articleID])
-                    .then((comments) => {
-                        return comments;
-                    });
-            };
-        });
-};

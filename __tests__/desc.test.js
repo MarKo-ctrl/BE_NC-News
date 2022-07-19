@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require("../app");
-const endpoints = require("../endpoints.json");
+// const endpoints = require("../endpoints.json");
 
 describe('GET /api', () => {
     it('200: responds with an object describing all available endpoints', () => {
