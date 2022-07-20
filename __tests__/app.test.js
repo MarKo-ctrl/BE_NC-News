@@ -218,12 +218,22 @@ describe('GET /api/users/:username', () => {
                 expect(body).toBeInstanceOf(Array);
                 expect(body).toHaveLength(1);
                 expect(body[0]).toEqual(
-                        expect.objectContaining({
-                            username: expect.any(String),
-                            name: expect.any(String),
-                            avatar_url:  expect.any(String)
-                        })
-                    );
+                    expect.objectContaining({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String)
+                    })
+                );
+            });
+    });
+
+    it('404: username does not exist', () => {
+        const username = '4consideration';
+        return request(app)
+            .get(`/api/users/${username}`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('User not found');
             });
     });
 });
