@@ -169,8 +169,10 @@ describe('PATCH: /api/articles/:article_id', () => {
     });
 
     it('404: responds with a not found message when the route passed does not exist', () => {
+        const voteUpdates = { inc_votes: 2 };
         return request(app)
             .get('/api/article/cloud/rain')
+            .send(voteUpdates)
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('Route not found');
@@ -223,8 +225,8 @@ describe('GET /api/users/:username', () => {
                         })
                     );
             });
-    })
-})
+    });
+});
 
 describe('GET /api/articles/:article_id/comments', () => {
     it(`200: responds with an array of comments for the given article_id. Each comment should have
@@ -298,6 +300,26 @@ describe('POST: /api/articles/:article_id/comments', () => {
             })
     });
 
+    it('201: ignores unnecessary comment properties', () => {
+        const newComment = { username: 'lurker', body: 'This is awesome!', number: 'five' };
+        const article_id = 4;
+        return request(app)
+            .post(`/api/articles/${article_id}/comments`)
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                expect(body).toEqual(
+                    expect.objectContaining({
+                        article_id: 4,
+                        author: "lurker",
+                        body: "This is awesome!",
+                        comment_id: 19,
+                        created_at: expect.any(String),
+                        votes: 0
+                    }));
+            })
+    });
+
     it('404: returns a message <User not found> when the given username does not exist', () => {
         const newComment = { username: 'superman', body: 'This is awesome!' };
         const article_id = 4;
@@ -319,6 +341,18 @@ describe('POST: /api/articles/:article_id/comments', () => {
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid ID');
+            });
+    });
+
+    it('400: returns with an error message when missing required properties', () => {
+        const ARTICLE_ID = 4;
+        const newComment = { body: 'This is awesome!' };
+        return request(app)
+            .post(`/api/articles/${ARTICLE_ID}/comments`)
+            .send(newComment)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Missing required properties');
             });
     });
 
@@ -386,22 +420,22 @@ describe('GET: /api/articles (queries)', () => {
             })
     });
 
-    it('400: responds with error when request is filtered by a topic that does not exist', () => {
+    it('404: responds with error when request is filtered by a topic that does not exist', () => {
         return request(app)
             .get(`/api/articles/?topic=rainbow`)
-            .expect(400)
+            .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe("Requested topic does not exist")
             })
     });
 
-    it('404: responds with error when request is filtered by a topic that does not have any articles', () => {
+    it('200: valid topic query, but has no articles responds with an empty array of articles', () => {
         return request(app)
             .get(`/api/articles/?topic=paper`)
-            .expect(404)
+            .expect(200)
             .then(({ body }) => {
-                expect(body.msg).toBe("No article found")
-            })
+                expect(body.msg).toBe('No article found');
+            });
     });
 });
 
