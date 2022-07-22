@@ -156,8 +156,7 @@ describe('PATCH: /api/articles/:article_id', () => {
             });
     });
 
-    it(`400: returns an error message of 'Invalid request - requested update is not a number'
-            when passed an empty object`, () => {
+    it(`400: returns an error message of 'Invalid request - requested update is not a number'`, () => {
         const voteUpdates = { inc_votes: 'sunnyDay' };
         return request(app)
             .patch('/api/articles/3')
@@ -484,6 +483,60 @@ describe('DELETE: /api/comments/:comment_id', () => {
     it('400: responds with an error message when no comment ID is given', () => {
         return request(app)
             .delete(`/api/comments`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });
+    });
+});
+
+describe('PATCH: /api/comments/:comment_id', () => {
+    it('200: returns a comment object with the votes property updated by the given value', () => {
+        const voteUpdates = { inc_votes: 2 };
+        return request(app)
+            .patch('/api/comments/3')
+            .send(voteUpdates)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toEqual(
+                    expect.objectContaining({
+                        comment_id: 3,
+                        article_id: 1,
+                        author: 'icellusedkars',
+                        body: "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+                        created_at: '2020-02-29T23:13:00.000Z',
+                        votes: 102
+                    }));
+            });
+    });
+
+    it(`400: returns an error message of 'Invalid request' when passed an empty object`, () => {
+        const voteUpdates = {};
+        return request(app)
+            .patch('/api/comments/3')
+            .send(voteUpdates)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid request');
+            });
+    });
+
+    it(`400: returns an error message of 'Invalid request - requested update is not a number'`, () => {
+        const voteUpdates = { inc_votes: 'sunnyDay' };
+        return request(app)
+            .patch('/api/comments/3')
+            .send(voteUpdates)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid request - requested update is not a number');
+            });
+    });
+
+    it('404: responds with a not found message when the route passed does not exist', () => {
+        const voteUpdates = { inc_votes: 2 };
+        return request(app)
+            .get('/api/article/cloud/rain')
+            .send(voteUpdates)
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('Route not found');
