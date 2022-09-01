@@ -7,18 +7,11 @@ const {
 const db = require("../connection");
 const { dropTables, createTables } = require("../helpers/manage-tables");
 
-const seed = async ({ topicData, userData, articleData, commentData }) => {
-  await dropTables();
-  await createTables();
-
+exports.seed = ({ topicData, userData, articleData, commentData }) => {
   const insertTopicsQueryStr = format(
     "INSERT INTO topics (slug, description) VALUES %L RETURNING *;",
     topicData.map(({ slug, description }) => [slug, description])
   );
-  const topicsPromise = db
-    .query(insertTopicsQueryStr)
-    .then((result) => result.rows);
-
   const insertUsersQueryStr = format(
     "INSERT INTO users ( username, password, name, avatar_url) VALUES %L RETURNING *;",
     userData.map(({ username, password, name, avatar_url }) => [
@@ -28,12 +21,6 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
       avatar_url,
     ])
   );
-  const usersPromise = db
-    .query(insertUsersQueryStr)
-    .then((result) => result.rows);
-
-  await Promise.all([topicsPromise, usersPromise]);
-
   const formattedArticleData = articleData.map(convertTimestampToDate);
   const insertArticlesQueryStr = format(
     "INSERT INTO articles (title, topic, author, body, created_at, votes) VALUES %L RETURNING *;",
@@ -49,26 +36,44 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
     )
   );
 
-  const articleRows = await db
-    .query(insertArticlesQueryStr)
-    .then((result) => result.rows);
+  return dropTables()
+    .then(() => {
+      return createTables();
+    })
+    .then(() => {
+      return db
+        .query(insertTopicsQueryStr)
+        // .then((result) => result.rows)
+    })
+    .then(() => {
+      return db
+        .query(insertUsersQueryStr)
+        // .then((result) => result.rows);
+    })
+    .then(() => {
+      return db
+        .query(insertArticlesQueryStr)
+        .then((result) => result.rows);
+    })
+    .then((articleRows) => {
+      const articleIdLookup = createRef(articleRows, "title", "article_id");
+      const formattedCommentData = formatComments(commentData, articleIdLookup);
 
-  const articleIdLookup = createRef(articleRows, "title", "article_id");
-  const formattedCommentData = formatComments(commentData, articleIdLookup);
+      const insertCommentsQueryStr = format(
+        "INSERT INTO comments (body, author, article_id, votes, created_at) VALUES %L RETURNING *;",
+        formattedCommentData.map(
+          ({ body, author, article_id, votes = 0, created_at }) => [
+            body,
+            author,
+            article_id,
+            votes,
+            created_at,
+          ]
+        )
+      );
+      return db
+        .query(insertCommentsQueryStr)
+        // .then((result) => result.rows);
 
-  const insertCommentsQueryStr = format(
-    "INSERT INTO comments (body, author, article_id, votes, created_at) VALUES %L RETURNING *;",
-    formattedCommentData.map(
-      ({ body, author, article_id, votes = 0, created_at }) => [
-        body,
-        author,
-        article_id,
-        votes,
-        created_at,
-      ]
-    )
-  );
-  return db.query(insertCommentsQueryStr).then((result) => result.rows);
+    });
 };
-
-module.exports = seed;

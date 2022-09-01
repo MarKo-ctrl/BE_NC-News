@@ -61,7 +61,7 @@ ON articles.article_id = comments.article_id`;
     if (topic && validTopics.includes(topic)) {
         queryString += `\nWHERE topic='${topic}'`;
     } else if (topic && !validTopics.includes(topic)) {
-        return Promise.reject({ status: 400, msg: "Requested topic does not exist" })
+        return Promise.reject({ status: 404, msg: "Requested topic does not exist" })
     };
 
     queryString += `\nGROUP BY articles.article_id`;
@@ -86,30 +86,10 @@ ON articles.article_id = comments.article_id`;
         .then((articles) => {
             if (articles.rows.length === 0) {
                 return Promise.reject({
-                    status: 404,
+                    status: 200,
                     msg: 'No article found'
                 });
             };
             return articles.rows;
-        });
-};
-
-exports.fetchArticleComments = (articleID) => {
-    return db.query(`SELECT title FROM articles WHERE article_id = $1`, [articleID])
-        .then((title) => {
-            if (title.rows.length === 0) {
-                return Promise.reject({
-                    status: 404,
-                    msg: 'No article found'
-                })
-            } else {
-                return db.query(`SELECT comment_id, article_id,
-                votes, created_at, author, body
-                FROM comments
-                WHERE article_id = $1`, [articleID])
-                    .then((comments) => {
-                        return comments;
-                    });
-            };
         });
 };

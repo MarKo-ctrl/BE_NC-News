@@ -1,4 +1,18 @@
-const { insertComment, purgeComment } = require('../models/comments.models');
+const { 
+    insertComment,
+    purgeComment,
+    fetchArticleComments,
+    updateCommentVote
+} = require('../models/comments.models');
+
+exports.getArticleComments = (req, res, next) => {
+    const { article_id } = req.params;
+    fetchArticleComments(article_id)
+        .then((comments) => {
+            res.status(200).send(comments);
+        })
+        .catch(next);
+};
 
 exports.postComment = (req, res, next) => {
     const { article_id } = req.params
@@ -15,4 +29,13 @@ exports.deleteComment = (req, res, next) => {
     purgeComment(commentID)
         .then(() => res.sendStatus(204))
         .catch(next)
+};
+
+exports.patchCommentVote = (req, res, next) => {
+    const { comment_id } = req.params;
+    const { inc_votes } = req.body;
+
+    updateCommentVote(comment_id, inc_votes)
+        .then((comment) => res.status(200).send(comment))
+        .catch(next);
 };

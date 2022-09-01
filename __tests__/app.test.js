@@ -1,4 +1,4 @@
-const seed = require('../db/seeds/seed');
+const { seed } = require('../db/seeds/seed');
 const testData = require('../db/data/test-data');
 const connection = require('../db/connection');
 const request = require('supertest');
@@ -40,29 +40,43 @@ describe('GET /api/topics', () => {
     });
 });
 
-describe('GET: /api/article/:article_id', () => {
-    it(`200: returns an article object with properties of 
-            article_id, title, topic, author, body, created_at and votes`, () => {
-        const ARTICLE_ID = 5;
+describe('GET /api/articles', () => {
+    it(`200: returns an array of article objects. Each object should have the following properties:
+    article_id, title, topic, author, body, created_at, votes and comment_count`, () => {
         return request(app)
-            .get(`/api/articles/${ARTICLE_ID}`)
+            .get(`/api/articles/`)
             .expect(200)
             .then(({ body }) => {
-                expect(body).toBeInstanceOf(Object);
-                expect(body.article).toHaveLength(1);
-                expect(body.article[0]).toEqual(
-                    expect.objectContaining({
-                        article_id: 5,
-                        title: "UNCOVERED: catspiracy to bring down democracy",
-                        topic: "cats",
-                        author: "rogersop",
-                        body: "Bastet walks amongst us, and the cats are taking arms!",
-                        created_at: "2020-08-03T13:14:00.000Z",
-                        votes: 0
-                    }));
+                expect(body).toBeInstanceOf(Array);
+                expect(body).toHaveLength(5);
+                body.forEach((article) => {
+                    expect(article).toEqual(
+                        expect.objectContaining({
+                            article_id: expect.any(Number),
+                            title: expect.any(String),
+                            topic: expect.any(String),
+                            author: expect.any(String),
+                            body: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            comment_count: expect.any(Number)
+                        }));
+                });
             });
     });
 
+    it('404: responds with a not found message when the route passed does not exist', () => {
+        return request(app)
+            .get('/api/oneMinReadArticles')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });
+    });
+
+});
+
+describe('GET: /api/article/:article_id', () => {
     it(`200: returns an article object with properties of 
             article_id, title, topic, author, body, created_at, votes and 
             the total amount of comments for the requested ID`, () => {
@@ -80,7 +94,7 @@ describe('GET: /api/article/:article_id', () => {
                         topic: "cats",
                         author: "rogersop",
                         body: "Bastet walks amongst us, and the cats are taking arms!",
-                        created_at: "2020-08-03T13:14:00.000Z",
+                        created_at: "2020-08-03T11:14:00.000Z",
                         votes: 0,
                         comment_count: "2"
                     }));
@@ -125,7 +139,7 @@ describe('PATCH: /api/articles/:article_id', () => {
                         topic: 'mitch',
                         author: 'icellusedkars',
                         body: 'some gifs',
-                        created_at: '2020-11-03T09:12:00.000Z',
+                        created_at: '2020-11-03T07:12:00.000Z',
                         votes: 2
                     }));
             })
@@ -142,8 +156,7 @@ describe('PATCH: /api/articles/:article_id', () => {
             });
     });
 
-    it(`400: returns an error message of 'Invalid request - requested update is not a number'
-            when passed an empty object`, () => {
+    it(`400: returns an error message of 'Invalid request - requested update is not a number'`, () => {
         const voteUpdates = { inc_votes: 'sunnyDay' };
         return request(app)
             .patch('/api/articles/3')
@@ -155,8 +168,10 @@ describe('PATCH: /api/articles/:article_id', () => {
     });
 
     it('404: responds with a not found message when the route passed does not exist', () => {
+        const voteUpdates = { inc_votes: 2 };
         return request(app)
             .get('/api/article/cloud/rain')
+            .send(voteUpdates)
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('Route not found');
@@ -192,40 +207,34 @@ describe('GET /api/users', () => {
     });
 });
 
-describe('GET /api/articles', () => {
-    it(`200: returns an array of article objects. Each object should have the following properties:
-    article_id, title, topic, author, body, created_at, votes and comment_count`, () => {
+describe('GET /api/users/:username', () => {
+    it('200: responds with a user object containing the following properties: username, avatar_url, name', () => {
+        const username = 'butter_bridge';
         return request(app)
-            .get(`/api/articles/`)
+            .get(`/api/users/${username}`)
             .expect(200)
             .then(({ body }) => {
                 expect(body).toBeInstanceOf(Array);
-                expect(body).toHaveLength(5);
-                body.forEach((article) => {
-                    expect(article).toEqual(
-                        expect.objectContaining({
-                            article_id: expect.any(Number),
-                            title: expect.any(String),
-                            topic: expect.any(String),
-                            author: expect.any(String),
-                            body: expect.any(String),
-                            created_at: expect.any(String),
-                            votes: expect.any(Number),
-                            comment_count: expect.any(Number)
-                        }));
-                });
+                expect(body).toHaveLength(1);
+                expect(body[0]).toEqual(
+                    expect.objectContaining({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String)
+                    })
+                );
             });
     });
 
-    it('404: responds with a not found message when the route passed does not exist', () => {
+    it('404: username does not exist', () => {
+        const username = '4consideration';
         return request(app)
-            .get('/api/oneMinReadArticles')
+            .get(`/api/users/${username}`)
             .expect(404)
             .then(({ body }) => {
-                expect(body.msg).toBe('Route not found');
+                expect(body.msg).toBe('User not found');
             });
     });
-
 });
 
 describe('GET /api/articles/:article_id/comments', () => {
@@ -300,6 +309,26 @@ describe('POST: /api/articles/:article_id/comments', () => {
             })
     });
 
+    it('201: ignores unnecessary comment properties', () => {
+        const newComment = { username: 'lurker', body: 'This is awesome!', number: 'five' };
+        const article_id = 4;
+        return request(app)
+            .post(`/api/articles/${article_id}/comments`)
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                expect(body).toEqual(
+                    expect.objectContaining({
+                        article_id: 4,
+                        author: "lurker",
+                        body: "This is awesome!",
+                        comment_id: 19,
+                        created_at: expect.any(String),
+                        votes: 0
+                    }));
+            })
+    });
+
     it('404: returns a message <User not found> when the given username does not exist', () => {
         const newComment = { username: 'superman', body: 'This is awesome!' };
         const article_id = 4;
@@ -324,6 +353,18 @@ describe('POST: /api/articles/:article_id/comments', () => {
             });
     });
 
+    it('400: returns with an error message when missing required properties', () => {
+        const ARTICLE_ID = 4;
+        const newComment = { body: 'This is awesome!' };
+        return request(app)
+            .post(`/api/articles/${ARTICLE_ID}/comments`)
+            .send(newComment)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Missing required properties');
+            });
+    });
+
     it(`404: returns an error message of article not found when passed an article ID that does not exist`, () => {
         const ARTICLE_ID = 1989;
         const newComment = { username: 'lurker', body: 'This is awesome!' };
@@ -337,7 +378,7 @@ describe('POST: /api/articles/:article_id/comments', () => {
     });
 });
 
-describe ('GET: /api/articles (queries)', () => {
+describe('GET: /api/articles (queries)', () => {
     it('200: responds with an array of article objects sorted by date (descending) as default ', () => {
         return request(app)
             .get(`/api/articles`)
@@ -388,26 +429,26 @@ describe ('GET: /api/articles (queries)', () => {
             })
     });
 
-    it ('400: responds with error when request is filtered by a topic that does not exist', () => {
+    it('404: responds with error when request is filtered by a topic that does not exist', () => {
         return request(app)
             .get(`/api/articles/?topic=rainbow`)
-            .expect(400)
+            .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe("Requested topic does not exist")
             })
     });
 
-    it ('404: responds with error when request is filtered by a topic that does not have any articles', () => {
+    it('200: valid topic query, but has no articles responds with an empty array of articles', () => {
         return request(app)
             .get(`/api/articles/?topic=paper`)
-            .expect(404)
+            .expect(200)
             .then(({ body }) => {
-                expect(body.msg).toBe("No article found")
-            })
+                expect(body.msg).toBe('No article found');
+            });
     });
 });
 
-describe ('DELETE: /api/comments/:comment_id', () => {
+describe('DELETE: /api/comments/:comment_id', () => {
     it('204: responds with no content', () => {
         const comment_id = 2;
         return request(app)
@@ -418,7 +459,7 @@ describe ('DELETE: /api/comments/:comment_id', () => {
             })
     });
 
-    it ('404: responds with an error message when passed a comment_id that does not exist', () => {
+    it('404: responds with an error message when passed a comment_id that does not exist', () => {
         const comment_id = 333;
         return request(app)
             .delete(`/api/comments/${comment_id}`)
@@ -437,14 +478,68 @@ describe ('DELETE: /api/comments/:comment_id', () => {
                 expect(body.msg).toBe('Invalid ID');
             });
 
-        });
+    });
 
-        it('400: responds with an error message when no comment ID is given', () => {
+    it('400: responds with an error message when no comment ID is given', () => {
         return request(app)
             .delete(`/api/comments`)
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('Route not found');
-            });    
-        });
+            });
     });
+});
+
+describe('PATCH: /api/comments/:comment_id', () => {
+    it('200: returns a comment object with the votes property updated by the given value', () => {
+        const voteUpdates = { inc_votes: 2 };
+        return request(app)
+            .patch('/api/comments/3')
+            .send(voteUpdates)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toEqual(
+                    expect.objectContaining({
+                        comment_id: 3,
+                        article_id: 1,
+                        author: 'icellusedkars',
+                        body: "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+                        created_at: '2020-02-29T23:13:00.000Z',
+                        votes: 102
+                    }));
+            });
+    });
+
+    it(`400: returns an error message of 'Invalid request' when passed an empty object`, () => {
+        const voteUpdates = {};
+        return request(app)
+            .patch('/api/comments/3')
+            .send(voteUpdates)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid request');
+            });
+    });
+
+    it(`400: returns an error message of 'Invalid request - requested update is not a number'`, () => {
+        const voteUpdates = { inc_votes: 'sunnyDay' };
+        return request(app)
+            .patch('/api/comments/3')
+            .send(voteUpdates)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid request - requested update is not a number');
+            });
+    });
+
+    it('404: responds with a not found message when the route passed does not exist', () => {
+        const voteUpdates = { inc_votes: 2 };
+        return request(app)
+            .get('/api/article/cloud/rain')
+            .send(voteUpdates)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Route not found');
+            });
+    });
+});
