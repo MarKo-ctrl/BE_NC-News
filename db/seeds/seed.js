@@ -13,9 +13,10 @@ exports.seed = ({ topicData, userData, articleData, commentData }) => {
     topicData.map(({ slug, description }) => [slug, description])
   );
   const insertUsersQueryStr = format(
-    "INSERT INTO users ( username, name, avatar_url) VALUES %L RETURNING *;",
-    userData.map(({ username, name, avatar_url }) => [
+    "INSERT INTO users ( username, password, name, avatar_url) VALUES %L RETURNING *;",
+    userData.map(({ username, password, name, avatar_url }) => [
       username,
+      password,
       name,
       avatar_url,
     ])
