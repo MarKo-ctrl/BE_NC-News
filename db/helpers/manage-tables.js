@@ -10,6 +10,7 @@ const createTables = async () => {
   const usersTablePromise = db.query(`
   CREATE TABLE users (
     username VARCHAR PRIMARY KEY,
+    password VARCHAR NOT NULL,
     name VARCHAR NOT NULL,
     avatar_url VARCHAR
   );`);
