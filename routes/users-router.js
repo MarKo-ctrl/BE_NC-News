@@ -1,11 +1,13 @@
 const usersRouter = require('express').Router();
 const {
-    getUsers,
-    getUsername,
+  getUsers,
+  getUsername,
+  regUser
 } = require('../controllers/users.controllers');
 
+usersRouter.get('/', getUsers);
+usersRouter.get('/:username', getUsername);
+usersRouter.post('/signin');
+usersRouter.post('/signup', regUser);
 
- usersRouter.get('/', getUsers);
- usersRouter.get('/:username', getUsername);
-
- module.exports = usersRouter;
+module.exports = usersRouter;
