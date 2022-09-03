@@ -3,7 +3,8 @@ const {
   selectUsername,
   createUser
 } = require('../models/users.models');
-const bcryptjs = require('bcryptjs')
+const bcryptjs = require('bcryptjs');
+const res = require('express/lib/response');
 
 exports.getUsers = (req, res, next) => {
   selectUsers()
@@ -18,6 +19,17 @@ exports.getUsername = (req, res, next) => {
   selectUsername(username)
     .then((userData) => {
       res.status(200).send(userData);
+    })
+    .catch(next)
+};
+
+exports.checkUsername = (req, res, next) => {
+  selectUsers()
+    .then((users) => {
+      if (users.find(({ username }) => username === req.body.username)) {
+        res.status(400).send({ msg: 'Username already in use' })
+      }
+      next()
     })
     .catch(next)
 };

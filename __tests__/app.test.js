@@ -208,7 +208,7 @@ describe('GET /api/users', () => {
   });
 });
 
-describe('POST: /api/users/signup', () => {
+describe.only('POST: /api/users/signup', () => {
   it('200: responds with an array of a new user', () => {
     const newUser = { username: 'pao13', password: 'hKzr9!@R', name: 'Marios' }
     return request(app)
@@ -229,17 +229,16 @@ describe('POST: /api/users/signup', () => {
       });
   });
 
-  // it('400: responds with a message that the username exists', () => {
-  //   const newUser = { username: 'pao13', password: 'hKzr9!@R', name: 'Marios' }
-  //   return request(app)
-  //     .post('/api/users/signup')
-  //     .send(newUser)
-  //     .expect(501)
-  //     .then(({ body }) => {
-  //       console.log(body)
-  //       expect(body.msg).toBe('Username already in use')
-  //     });
-  // });
+  it ('400: responds with a message that the username exists', () => {
+    const newUser = { username: 'lurker', password: 'B9s$ZnCF', name: 'do_nothing' }
+    return request(app)
+      .post('/api/users/signup')
+      .send(newUser)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Username already in use')
+      });
+  });
 });
 
 describe('GET /api/users/:username', () => {
