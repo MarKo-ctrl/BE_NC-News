@@ -241,7 +241,7 @@ describe('POST: /api/users/signup', () => {
   });
 });
 
-describe.only('POST: /api/users/signin', () => {
+describe ('POST: /api/users/signin', () => {
   it('400: responds with a not found message if the user is not registered', () => {
     const user = { username: 'pao13', password: 'hKzr9!@R' }
     return request(app)
