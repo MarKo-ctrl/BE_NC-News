@@ -6,6 +6,7 @@ const {
 } = require("../helpers/utils");
 const db = require("../connection");
 const { dropTables, createTables } = require("../helpers/manage-tables");
+const bcryptjs = require('bcryptjs')
 
 exports.seed = ({ topicData, userData, articleData, commentData }) => {
   const insertTopicsQueryStr = format(
@@ -16,7 +17,7 @@ exports.seed = ({ topicData, userData, articleData, commentData }) => {
     "INSERT INTO users ( username, password, name, avatar_url) VALUES %L RETURNING *;",
     userData.map(({ username, password, name, avatar_url }) => [
       username,
-      password,
+      bcryptjs.hashSync(password, 10),
       name,
       avatar_url,
     ])
@@ -43,12 +44,12 @@ exports.seed = ({ topicData, userData, articleData, commentData }) => {
     .then(() => {
       return db
         .query(insertTopicsQueryStr)
-        // .then((result) => result.rows)
+      // .then((result) => result.rows)
     })
     .then(() => {
       return db
         .query(insertUsersQueryStr)
-        // .then((result) => result.rows);
+      // .then((result) => result.rows);
     })
     .then(() => {
       return db
@@ -73,7 +74,7 @@ exports.seed = ({ topicData, userData, articleData, commentData }) => {
       );
       return db
         .query(insertCommentsQueryStr)
-        // .then((result) => result.rows);
+      // .then((result) => result.rows);
 
     });
 };

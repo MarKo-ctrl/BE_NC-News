@@ -3,9 +3,7 @@ const articleRouter = require('./articles-router');
 const commentsRouter = require('./comments-router');
 const topicRouter = require('./topics-router');
 const usersRouter = require('./users-router');
-const {
-    getDesc
-} = require('../controllers/description.controllers');
+const { getDesc } = require('../controllers/description.controllers');
 
 
 apiRouter.get('/', getDesc);
