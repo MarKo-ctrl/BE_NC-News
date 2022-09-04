@@ -18,18 +18,27 @@ exports.getUsername = (req, res, next) => {
   const { username } = req.params;
   selectUsername(username)
     .then((userData) => {
-      res.status(200).send(userData);
+      if (userData.length !== 0) {
+        res.status(200).send(userData)
+      } else {
+        return Promise.reject({
+          status: 404,
+          msg: 'User not found'
+        });
+      };
     })
     .catch(next)
 };
 
 exports.checkUsername = (req, res, next) => {
-  selectUsers()
-    .then((users) => {
-      if (users.find(({ username }) => username === req.body.username)) {
+  selectUsername(req.body.username)
+    .then((user) => {
+      console.log(user.length)
+      if (user.length !== 0) {
         res.status(400).send({ msg: 'Username already in use' })
+      } else {
+        next()
       }
-      next()
     })
     .catch(next)
 };

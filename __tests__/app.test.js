@@ -208,7 +208,7 @@ describe('GET /api/users', () => {
   });
 });
 
-describe.only('POST: /api/users/signup', () => {
+describe.only ('POST: /api/users/signup', () => {
   it('200: responds with an array of a new user', () => {
     const newUser = { username: 'pao13', password: 'hKzr9!@R', name: 'Marios' }
     return request(app)
@@ -216,6 +216,7 @@ describe.only('POST: /api/users/signup', () => {
       .send(newUser)
       .expect(200)
       .then(({ body }) => {
+        console.log(body)
         expect(body).toBeInstanceOf(Array);
         expect(body).toHaveLength(1);
         expect(body[0]).toEqual(
@@ -229,7 +230,7 @@ describe.only('POST: /api/users/signup', () => {
       });
   });
 
-  it ('400: responds with a message that the username exists', () => {
+  it('400: responds with a message that the username exists', () => {
     const newUser = { username: 'lurker', password: 'B9s$ZnCF', name: 'do_nothing' }
     return request(app)
       .post('/api/users/signup')
@@ -241,7 +242,20 @@ describe.only('POST: /api/users/signup', () => {
   });
 });
 
-describe('GET /api/users/:username', () => {
+describe('POST: /api/users/signin', () => {
+  it('400: responds with a not found message if the user is not registered', () => {
+    const user = { username: 'pao13', password: 'hKzr9!@R', name: 'Marios' }
+    return request(app)
+      .post('/api/users/signin')
+      .send(user)
+      .expect(404)
+      .then(({ body }) => {
+        console.log(body)
+      })
+  });
+});
+
+describe.only('GET /api/users/:username', () => {
   it('200: responds with a user object containing the following properties: username, avatar_url, name', () => {
     const username = 'butter_bridge';
     return request(app)
