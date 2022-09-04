@@ -4,7 +4,6 @@ const {
   createUser
 } = require('../models/users.models');
 const bcryptjs = require('bcryptjs');
-const res = require('express/lib/response');
 
 exports.getUsers = (req, res, next) => {
   selectUsers()
@@ -33,7 +32,6 @@ exports.getUsername = (req, res, next) => {
 exports.checkUsername = (req, res, next) => {
   selectUsername(req.body.username)
     .then((user) => {
-      console.log(user.length)
       if (user.length !== 0) {
         res.status(400).send({ msg: 'Username already in use' })
       } else {
@@ -42,6 +40,25 @@ exports.checkUsername = (req, res, next) => {
     })
     .catch(next)
 };
+
+exports.checkPswd = (req, res, next) => {
+  selectUsername(req.body.username)
+    .then((user) => {
+      if (user.length === 0) {
+        res.status(404).send({ msg: 'User not found' })
+      } else {
+        bcryptjs.compare(req.body.password, user[0].password)
+          .then((ans) => {
+            if (!ans) {
+              res.status(200).send({ msg: 'Wrong password' })
+            } else {
+              res.status(200).send({ msg: 'User is signed in' })
+            }
+          })
+      }
+    })
+    .catch(next)
+}
 
 exports.regUser = (req, res, next) => {
   const { username, name, avatarl_url } = req.body;
