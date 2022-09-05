@@ -2,15 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const { handleInvalidRoutes } = require('./controllers/errors/errors.controllers');
 const {
-    handleCustomServerErrors,
-    handleServerErrors,
-    handlePSQLError
+  handleCustomServerErrors,
+  handleServerErrors,
+  handlePSQLError
 } = require('./models/errors/errors.models');
 const apiRouter = require('./routes/api-router')
 
 const app = express();
 
-const corsOptions = {origin: 'http://localhost:3000/login'}
+const corsOptions = { credentials: true }
 app.use(cors(corsOptions));
 app.use(express.json());
 
