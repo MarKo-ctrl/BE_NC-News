@@ -264,7 +264,7 @@ describe ('POST: /api/users/signin', () => {
       })
   });
 
-  it('200: responds with a success message when the given user password matches the stored password', () => {
+  it.only ('200: responds with a success message when the given user password matches the stored password', () => {
     const userToSignin = { username: 'lurker', password: 'I am wrong' }
     return request(app)
       .post('/api/users/signin')
