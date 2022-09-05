@@ -11,7 +11,7 @@ const apiRouter = require('./routes/api-router')
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:3000/login',
+  origin: 'http://127.0.0.1:3000/login',
   credentials: true
 }));
 app.use(express.json());
