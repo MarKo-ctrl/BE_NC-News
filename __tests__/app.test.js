@@ -241,7 +241,7 @@ describe('POST: /api/users/signup', () => {
   });
 });
 
-describe ('POST: /api/users/signin', () => {
+describe('POST: /api/users/signin', () => {
   it('400: responds with a not found message if the user is not registered', () => {
     const user = { username: 'pao13', password: 'hKzr9!@R' }
     return request(app)
@@ -253,18 +253,25 @@ describe ('POST: /api/users/signin', () => {
       });
   });
 
-  it('200: responds with a success message when the given user password matches the stored password', () => {
+  it('200: responds with user info when the given user password matches the stored password', () => {
     const userToSignin = { username: 'lurker', password: 'B9s$ZnCF' }
     return request(app)
       .post('/api/users/signin')
       .send(userToSignin)
       .expect(200)
       .then(({ body }) => {
-        expect(body.msg).toBe('User is signed in');
-      })
+        expect(body.length).toBe(1);
+        expect(body[0]).toEqual(
+          expect.objectContaining({
+            username: expect.any(String),
+            avatar_url: expect.any(String),
+            name: expect.any(String)
+          })
+        );
+      });
   });
 
-  it.only ('200: responds with a success message when the given user password matches the stored password', () => {
+  it('200: responds with a message when the given user password does not match the stored password', () => {
     const userToSignin = { username: 'lurker', password: 'I am wrong' }
     return request(app)
       .post('/api/users/signin')
