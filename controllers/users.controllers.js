@@ -52,7 +52,6 @@ exports.checkPswd = (req, res, next) => {
             if (!ans) {
               res.status(200).send({ msg: 'Wrong password' })
             } else {
-              delete user.password
               res.status(200).send(user)
             }
           })
