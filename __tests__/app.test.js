@@ -277,7 +277,7 @@ describe('POST: /api/users/signin', () => {
     return request(app)
       .post('/api/users/signin')
       .send(userToSignin)
-      .expect(200)
+      .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe('Wrong password');
       })
