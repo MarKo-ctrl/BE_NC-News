@@ -1,34 +1,34 @@
 const {
-    fetchArticleById,
-    updateArticleByID,
-    fetchArticles,
+  fetchArticleById,
+  updateArticleByID,
+  fetchArticles,
 } = require('../models/articles.models');
 
 exports.getArticleByID = (req, res, next) => {
-    const { article_id } = req.params;
-    fetchArticleById(article_id)
-        .then((article) => {
-            res.status(200).send({ article });
-        })
-        .catch(next);
+  const { article_id } = req.params;
+  fetchArticleById(article_id)
+    .then((article) => {
+      res.status(200).send({ article });
+    })
+    .catch(next);
 };
 
 exports.patchArticleByID = (req, res, next) => {
-    const { article_id } = req.params;
-    const { inc_votes } = req.body;
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
 
-    updateArticleByID(article_id, inc_votes)
-        .then((article) => res.status(200).send(article))
-        .catch(next);
+  updateArticleByID(article_id, inc_votes)
+    .then((article) => res.status(200).send(article))
+    .catch(next);
 };
 
 exports.getArticles = (req, res, next) => {
-    const { sort_by, order, topic } = req.query;
-    
-    fetchArticles(sort_by, order, topic)
-        .then((articles) => {
-            res.status(200).send(articles);
-        })
-        .catch(next);
+  const { sort_by, order, topic } = req.query;
+
+  fetchArticles(sort_by, order, topic)
+    .then((articles) => {
+      res.status(200).send(articles);
+    })
+    .catch(next);
 };
 
