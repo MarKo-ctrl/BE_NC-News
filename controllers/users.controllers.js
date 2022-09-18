@@ -50,9 +50,8 @@ exports.checkPswd = (req, res, next) => {
         bcryptjs.compare(req.body.password, user[0].password)
           .then((ans) => {
             if (!ans) {
-              res.status(200).send({ msg: 'Wrong password' })
+              res.status(400).send({ msg: 'Wrong password' })
             } else {
-              delete user.password
               res.status(200).send(user)
             }
           })
