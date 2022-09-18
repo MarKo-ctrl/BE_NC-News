@@ -54,7 +54,7 @@ exports.updateArticleByID = (article_id, inc_votes) => {
   };
 };
 
-exports.fetchArticles = (sortBy, order, topic) => {
+exports.fetchArticles = (sortBy, order, topic, page) => {
   const fetchColumns = () => {
     return db.query(`SELECT table_name, column_name
                     FROM information_schema.columns
@@ -106,6 +106,10 @@ ON articles.article_id = comments.article_id`;
     return Promise.reject({ status: 400, msg: "Order value not accepted" })
   } else {
     queryString += ` DESC`;
+  }
+
+  if (page) {
+    queryString += `\nLIMIT 9 OFFSET ${(page - 1) * 10}`
   }
 
   return db.query(queryString)
